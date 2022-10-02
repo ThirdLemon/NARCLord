@@ -171,6 +171,10 @@ namespace NARCLord
                     bStream.WriteString("GMIF");
                     //WRite gmif size
                     bStream.WriteUInt32((uint)gmifEnd + 8);
+                    //Fill the emtpy space between files with FF
+                    bStream.Position = gmifStart;
+                    while (!bStream.EndOfStream)
+                        bStream.WriteByte(0xFF);
                     //write every file
                     for (int fileNum = 0; fileNum < Length; fileNum++)
                     {

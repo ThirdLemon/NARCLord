@@ -16,6 +16,9 @@ namespace UnitTesting
         string badGMIF;
 
         string simple;
+        string onemisalignment;
+
+        string pokemartNARC;
 
         [TestInitialize]
         public void Initialize()
@@ -27,6 +30,9 @@ namespace UnitTesting
             badGMIF = "../../../Files/sample6.bin";
 
             simple = "../../../Files/sample4.bin";
+            onemisalignment = "../../../Files/sample7.bin";
+
+            pokemartNARC = "../../../Files/pokemart.narc";
         }
 
         [TestMethod]
@@ -51,6 +57,23 @@ namespace UnitTesting
                 Assert.AreEqual(file1[i], simpleNarc[0][i]);
             for (int i = 0; i < 8; i++)
                 Assert.AreEqual(file2[i], simpleNarc[1][i]);
+        }
+
+        [TestMethod]
+        public void MakeImperfectNarc()
+        {
+            NARC imperfectNarc = NARC.Build(onemisalignment);
+
+            byte[] file1 = new byte[] { 0x46, 0x49, 0x4C, 0x45 };
+            byte[] file2 = new byte[] { 0x46, 0x49, 0x4C, 0x45, 0x30, 0x32 };
+            byte[] file3 = new byte[] { 0x46, 0x49, 0x4C, 0x45, 0x54, 0x48, 0x52, 0x45 };
+
+            for (int i = 0; i < 4; i++)
+                Assert.AreEqual(file1[i], imperfectNarc[0][i], "File 1 byte " + i);
+            for (int i = 0; i < 6; i++)
+                Assert.AreEqual(file2[i], imperfectNarc[1][i], "File 2 byte " + i);
+            for (int i = 0; i < 8; i++)
+                Assert.AreEqual(file3[i], imperfectNarc[2][i], "File 3 byte " + i);
         }
 
         [TestMethod]
@@ -109,6 +132,21 @@ namespace UnitTesting
 
             for (int i = 0; i < raw.Length; i++)
                 Assert.AreEqual(raw[i], compiled[i]);
+        }
+
+        [TestMethod]
+        public void ValidateWithReal()
+        {
+            NARC pokemart = NARC.Build(pokemartNARC);
+
+            byte[] compiled = pokemart.Compile();
+
+            byte[] desired = File.ReadAllBytes(pokemartNARC);
+
+            Assert.AreEqual(desired.Length, compiled.Length);
+
+            for (int i = 0; i < compiled.Length; i++)
+                Assert.AreEqual(desired[i], compiled[i], "Byte " + i);
         }
     }
 }
