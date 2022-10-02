@@ -15,7 +15,7 @@ namespace NARCLord
      */
     public class NARC : IEnumerable<byte[]>
     {
-        private byte[][] _data;
+        private List<Byte[]> _data;
 
        
 
@@ -26,7 +26,7 @@ namespace NARCLord
          */
         public NARC()
         {
-            _data = new byte[][] { null };
+            _data = new List<byte[]> ();
         }
 
         public static NARC Build(string file)
@@ -103,12 +103,11 @@ namespace NARCLord
 
                 //now go get the data
                 NARC to_return = new NARC();
-                to_return._data = new byte[fileCount][];
 
                 for (uint fileNum = 0; fileNum < fileCount; fileNum++)
                 {
                     bStream.Position = fileSpaceStart + fileStartLocs[fileNum];
-                    to_return._data[fileNum] = bStream.ReadBytes((int)(fileEndLocs[fileNum] - fileStartLocs[fileNum]));
+                    to_return._data.Add(bStream.ReadBytes((int)(fileEndLocs[fileNum] - fileStartLocs[fileNum])));
                 }
 
                 return to_return;
@@ -192,12 +191,17 @@ namespace NARCLord
 
         public int Length
         {
-            get { return _data.Length; }
+            get { return _data.Count; }
+        }
+
+        public void Add(byte[] item)
+        {
+            _data.Add(item);
         }
 
         public IEnumerator<byte[]> GetEnumerator()
         {
-            return (IEnumerator<byte[]>)_data.GetEnumerator();
+            return _data.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

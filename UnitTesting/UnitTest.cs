@@ -54,10 +54,12 @@ namespace UnitTesting
         }
 
         [TestMethod]
-        public void CompileSimpleNarc()
+        public void CompileTrivialNarc()
         {
-            NARC emptyNarc = new NARC();
-            emptyNarc[0] = new byte[4] { 0x66, 0x69, 0x72, 0x65 };
+            NARC emptyNarc = new NARC
+            {
+                new byte[4] { 0x66, 0x69, 0x72, 0x65 }
+            };
             byte[] compiled = emptyNarc.Compile();
 
             Assert.AreEqual(compiled.Length, compiled[8]);
@@ -69,6 +71,26 @@ namespace UnitTesting
                 0x04, 0x00, 0x00, 0x00, 0x42, 0x54, 0x4E, 0x46, 0x10, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x01, 0x00, 0x47, 0x4D, 0x49, 0x46, 0x0C, 0x00, 0x00, 0x00, 0x66, 0x69, 0x72, 0x65
             };
+
+            for (int i = 0; i < compiled.Length; i++)
+                Assert.AreEqual(desired[i], compiled[i]);
+        }
+
+        [TestMethod]
+        public void CompileSimpleNarc()
+        {
+            NARC emptyNarc = new NARC
+            {
+                new byte[4] { 0x47, 0x41, 0x52, 0x42 },
+                new byte[8] { 0x41, 0x47, 0x45, 0x44, 0x41, 0x54, 0x41, 0x21 }
+            };
+            byte[] compiled = emptyNarc.Compile();
+
+            Assert.AreEqual(compiled.Length, compiled[8]);
+
+            byte[] desired = File.ReadAllBytes(simple);
+
+            Assert.AreEqual(desired.Length, compiled.Length);
 
             for (int i = 0; i < compiled.Length; i++)
                 Assert.AreEqual(desired[i], compiled[i]);
