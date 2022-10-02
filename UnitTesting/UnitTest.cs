@@ -32,17 +32,17 @@ namespace UnitTesting
         [TestMethod]
         public void DontPassInvalidNarcs()
         {
-            Assert.ThrowsException<InvalidDataException>(() => { NARC.BuildFromFile(garbageData); });
-            Assert.ThrowsException<InvalidDataException>(() => { NARC.BuildFromFile(badBTAF); });
-            Assert.ThrowsException<InvalidDataException>(() => { NARC.BuildFromFile(badFileLength); });
-            Assert.ThrowsException<InvalidDataException>(() => { NARC.BuildFromFile(badBTNF); });
-            Assert.ThrowsException<InvalidDataException>(() => { NARC.BuildFromFile(badGMIF); });
+            Assert.ThrowsException<InvalidDataException>(() => { NARC.Build(garbageData); });
+            Assert.ThrowsException<InvalidDataException>(() => { NARC.Build(badBTAF); });
+            Assert.ThrowsException<InvalidDataException>(() => { NARC.Build(badFileLength); });
+            Assert.ThrowsException<InvalidDataException>(() => { NARC.Build(badBTNF); });
+            Assert.ThrowsException<InvalidDataException>(() => { NARC.Build(badGMIF); });
         }
 
         [TestMethod]
         public void MakeSimpleNarc()
         {
-            NARC simpleNarc = NARC.BuildFromFile(simple);
+            NARC simpleNarc = NARC.Build(simple);
 
             byte[] file1 = new byte[] { 0x47, 0x41, 0x52, 0x42 };
             byte[] file2 = new byte[] { 0x41, 0x47, 0x45, 0x44, 0x41, 0x54, 0x41, 0x21 };
@@ -77,7 +77,7 @@ namespace UnitTesting
         [TestMethod]
         public void DecompThenRecompile()
         {
-            NARC simpleNarc = NARC.BuildFromFile(simple);
+            NARC simpleNarc = NARC.Build(simple);
 
             byte[] compiled = simpleNarc.Compile();
 
