@@ -40,7 +40,7 @@ namespace NARCLord
                     if (filePrefix != "NARC")
                         throw new InvalidDataException("File given is not a narc file.");
 
-                    //Next four bytes should be FE FF 01 00
+                    //Next four bytes should be FE FF 00 01
                     bStream.Position += 4;
                     //After that, the length of the file is encoded
                     uint fileSize = bStream.ReadUInt32();
@@ -155,7 +155,9 @@ namespace NARCLord
                     bStream.WriteBytes(new byte[] { 0x10, 0x00, 0x03, 0x00 });
                     bStream.WriteString("BTAF");
                     //write btaf size
-                    bStream.WriteUInt32(0x8 + (0x8 * (uint)Length));
+                    bStream.WriteUInt32(0xC + (0x8 * (uint)Length));
+                    //write file count
+                    bStream.WriteUInt32((uint)Length);
                     //Write file locs
                     for(int fileNum = 0; fileNum < Length; fileNum++)
                     {
