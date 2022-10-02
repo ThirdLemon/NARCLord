@@ -113,6 +113,73 @@ namespace NARCLord
             }
         }
 
+        public byte[] Compile()
+        {
+            //get file packed order
+            int[] fileStartLocs = new int[Length];
+            int[] fileEndLocs = new int[Length];
+
+            for(int fileNum = 0; fileNum < Length; fileNum++)
+            {
+                if (fileNum == 0)
+                    fileStartLocs[fileNum] = 0;
+                else
+                    //Round up to nearest multiple of four
+                    fileStartLocs[fileNum] = ((fileEndLocs[fileNum - 1] + 3) / 4) * 4;
+
+                fileEndLocs[fileNum] = fileStartLocs[fileNum] + _data[fileNum].Length;
+            }
+
+            //get start of gmif section in total file
+            //1C is initial header+subheader, 8*length is total btaf section, 18 is second header+subheader
+            int gmifStart = 0x1C + (8 * Length) + 0x18;
+
+            //get total length of gmif section, rounded to the nearest multiple of four
+            int gmifEnd = ((fileEndLocs[Length - 1] + 3) / 4) * 4;
+
+            //total file size. 1C is the first header and subheader size, then the entire encoding of file lengths, then the secondary header and its subheader, then the length of the file
+            int fileSize = 0x1C + (8 * Length) + 0x18 + gmifEnd;
+
+            byte[] to_return = new byte[fileSize];
+
+            using (MemoryStream stream = new MemoryStream(to_return))
+            {
+                using (BinaryStream bStream = new BinaryStream(stream, stringCoding: StringCoding.Raw))
+                {
+                    //Write initial boilerplate
+                    bStream.WriteString("NARC");
+                    bStream.WriteBytes(new byte[] { 0xFE, 0xFF, 0x00, 0x01});
+                    //Write filesize
+                    bStream.WriteUInt32((uint)fileSize);
+                    //more boilerplate
+                    bStream.WriteBytes(new byte[] { 0x10, 0x00, 0x03, 0x00 });
+                    bStream.WriteString("BTAF");
+                    //write btaf size
+                    bStream.WriteUInt32(0x8 + (0x8 * (uint)Length));
+                    //Write file locs
+                    for(int fileNum = 0; fileNum < Length; fileNum++)
+                    {
+                        bStream.WriteUInt32((uint)fileStartLocs[fileNum]);
+                        bStream.WriteUInt32((uint)fileEndLocs[fileNum]);
+                    }
+                    //write second header boilerplate
+                    bStream.WriteString("BTNF");
+                    bStream.WriteBytes(new byte[] { 0x10, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00 });
+                    bStream.WriteString("GMIF");
+                    //WRite gmif size
+                    bStream.WriteUInt32((uint)gmifEnd + 8);
+                    //write every file
+                    for (int fileNum = 0; fileNum < Length; fileNum++)
+                    {
+                        bStream.Position = gmifStart + fileStartLocs[fileNum];
+                        bStream.WriteBytes(_data[fileNum]);
+                    }
+                }
+            }
+
+            return to_return;
+        }
+
         public byte[] this[int i]
         {
             get { return _data[i]; }
