@@ -15,25 +15,36 @@ namespace NARCLord
      */
     public class NARC : IEnumerable<byte[]>
     {
-        private List<Byte[]> _data;
+        /**
+         * <summary>The actual data contained within the narc.</summary>
+         */
+        private List<byte[]> _data;
 
        
 
         /**
-         * <summary>
-         *      Generate an empty narc
-         * </summary>
+         * <summary>Generate an empty narc, with no files inside.</summary>
          */
         public NARC()
         {
             _data = new List<byte[]> ();
         }
 
+        /**
+         * <summary>Creates a NARC object from a narc file.</summary>
+         * <param name="file">The path to a narc file.</param>
+         * <returns>A new NARC object that contains all the files sotred inside the narc file.</returns>
+         */
         public static NARC Build(string file)
         {
             return Build(new FileStream(file, FileMode.Open));
         }
 
+        /**
+         * <summary>Creatse a NARC object from a narc file.</summary>
+         * <param name="stream">A stream reading from a narc file.</param>
+         * <returns>A new NARC object that contains all the files sotred inside the narc file.</returns>
+         */
         public static NARC Build(Stream stream)
         {
             using (BinaryStream bStream = new BinaryStream(stream))
@@ -114,6 +125,10 @@ namespace NARCLord
             }
         }
 
+        /**
+         * <summary>Compile a NARC object to the data of a narc file.</summary>
+         * <returns>A byte array that contains data ready to be read as a narc file.</returns>
+         */
         public byte[] Compile()
         {
             //get file packed order
@@ -193,21 +208,37 @@ namespace NARCLord
             set { _data[i] = value; }
         }
 
+        /**
+         * <summary>Gets the number of files contained within the NARC object.</summary>
+         * <value>The number of files contained within the NARC object.</value>
+         */
         public int Length
         {
             get { return _data.Count; }
         }
 
+        /**
+         * <summary>Adds a file to the end of the narc's list of files.</summary>
+         * <param name="item">A file.</param>
+         */
         public void Add(byte[] item)
         {
             _data.Add(item);
         }
 
+        /**
+         * <summary>Returns an enumerator that iterates through the files.</summary>
+         * <returns>A <see cref="List{T}.Enumerator"/> with template type <see cref="byte[]"/>.</returns>
+         */
         public IEnumerator<byte[]> GetEnumerator()
         {
             return _data.GetEnumerator();
         }
 
+        /**
+         * <summary>Returns an enumerator that iterates through the files.</summary>
+         * <returns>A <see cref="List{T}.Enumerator"/> with template type <see cref="byte[]"/>.</returns>
+         */
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _data.GetEnumerator();
